@@ -1,39 +1,20 @@
 require('dotenv').config()
+const args = require('args');
+
 const Drawer = require('./lib/Drawer');
 const CoinMarketClient = require('./lib/CoinMarketClient');
 const stringTool = require('./tools/string');
-const DAY = 24 * 60 * 60 * 1000;
 let LIMIT = 5
 let coinId = "shiba-inu";
-const args = require('args');
-
 const setLimit = (content) => {
-    limit = content
+    LIMIT = content
 }
 const setCoinId = (content) => {
     coinId = content
 }
 
-args.options([
-        {
-            name: 'id',
-            description: 'Coin id. Default: shiba-inu',
-            init: setCoinId,
-            defaultValue: "shiba-inu"
-        },
-        {
-            name: 'limit',
-            description: 'Number of days. Default: 5',
-            init: setLimit,
-            defaultValue: 5
-        }
-    ])
-  .command('run', 'Draw a command line chart', run, ['r'])
-
-const flags = args.parse(process.argv)
-
-
 async function run() {
+    console.log('running');
     const coinMarketClient = new CoinMarketClient();
     const data = await coinMarketClient.getMarketChart(coinId, LIMIT);
     const first = data.prices[0][0];
@@ -65,3 +46,20 @@ async function run() {
 // run().then(() => {
 //     console.log('done!..');
 // })
+
+args.options([
+    {
+        name: 'id',
+        description: 'Coin id. Default: shiba-inu',
+        init: setCoinId,
+        defaultValue: "shiba-inu"
+    },
+    {
+        name: 'limit',
+        description: 'Number of days. Default: 5',
+        init: setLimit,
+        defaultValue: 5
+    }
+]).command('run', 'Draw a command line chart', run, ['r'])
+
+const flags = args.parse(process.argv)
