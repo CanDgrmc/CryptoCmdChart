@@ -5,18 +5,26 @@ const Drawer = require('./lib/Drawer');
 const CoinMarketClient = require('./lib/CoinMarketClient');
 const stringTool = require('./tools/string');
 let LIMIT = 5
+let CURRENCY = "TRY";
+let INCLUDE_MARKET_CAP = false;
+
 let coinId = "shiba-inu";
 const setLimit = (content) => {
     LIMIT = content
 }
+const setCurrency = (content) => {
+    CURRENCY = content
+}
 const setCoinId = (content) => {
     coinId = content
 }
+const setIncludeMarketCap = (content) => {
+    INCLUDE_MARKET_CAP = true
+}
 
 async function run() {
-    console.log('running');
     const coinMarketClient = new CoinMarketClient();
-    const data = await coinMarketClient.getMarketChart(coinId, LIMIT);
+    const data = await coinMarketClient.getMarketChart(coinId, LIMIT, CURRENCY);
     const first = data.prices[0][0];
     const last = data.prices[data.prices.length - 1][0];
     const firstDate = new Date(first).toISOString();
@@ -31,14 +39,20 @@ async function run() {
     });
     
     const drawerPrices = new Drawer(mappedPrices);
-    const drawerMarketCaps = new Drawer(mappedMarketCaps);
+    let drawerMarketCaps;
+    if (INCLUDE_MARKET_CAP) {
+        drawerMarketCaps = new Drawer(mappedMarketCaps);
+    }
 
     console.log('                                                                                 ############# PRICE ##############                                                                                 ')
     console.log(drawerPrices.init());
-    console.log('\n \n')
-    console.log('                                                                             ############# MARKET CAP ##############                                                                                 ')
-    console.log(drawerMarketCaps.init());
-    console.log('\n \n')
+    if(INCLUDE_MARKET_CAP) {
+        console.log('\n \n')
+        console.log('                                                                             ############# MARKET CAP ##############                                                                                 ')
+        console.log(drawerMarketCaps.init());
+        console.log('\n \n')
+    }
+   
 
     console.log(`                                                                                 FROM: ${firstDate} || TO: ${lastDate}`);
 }
@@ -59,6 +73,18 @@ args.options([
         description: 'Number of days. Default: 5',
         init: setLimit,
         defaultValue: 5
+    },
+    {
+        name: 'currency',
+        description: 'Currency. Default: TRY',
+        init: setCurrency,
+        defaultValue: "TRY"
+    },
+    {
+        name: 'include-market-cap',
+        description: 'Includes market cap chart. Default: false',
+        init: setIncludeMarketCap,
+
     }
 ]).command('run', 'Draw a command line chart', run, ['r'])
 
