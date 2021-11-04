@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "args": "^5.0.1",
     "asciichart": "^1.5.25",
     "axios": "^0.24.0",
     "dotenv": "^10.0.0"

@@ -3,8 +3,35 @@ const Drawer = require('./lib/Drawer');
 const CoinMarketClient = require('./lib/CoinMarketClient');
 const stringTool = require('./tools/string');
 const DAY = 24 * 60 * 60 * 1000;
-const LIMIT = 5
-const coinId = "shiba-inu";
+let LIMIT = 5
+let coinId = "shiba-inu";
+const args = require('args');
+
+const setLimit = (content) => {
+    limit = content
+}
+const setCoinId = (content) => {
+    coinId = content
+}
+
+args.options([
+        {
+            name: 'id',
+            description: 'Coin id. Default: shiba-inu',
+            init: setCoinId,
+            defaultValue: "shiba-inu"
+        },
+        {
+            name: 'limit',
+            description: 'Number of days. Default: 5',
+            init: setLimit,
+            defaultValue: 5
+        }
+    ])
+  .command('run', 'Draw a command line chart', run, ['r'])
+
+const flags = args.parse(process.argv)
+
 
 async function run() {
     const coinMarketClient = new CoinMarketClient();
@@ -21,12 +48,9 @@ async function run() {
     const mappedMarketCaps = data.market_caps.map( i => {
         return i[1]
     });
-    const mappedTotalVolumes = data.total_volumes.map( i => {
-        return i[1]
-    });
+    
     const drawerPrices = new Drawer(mappedPrices);
     const drawerMarketCaps = new Drawer(mappedMarketCaps);
-    const drawerTotalVolumes = new Drawer(mappedTotalVolumes);
 
     console.log('                                                                                 ############# PRICE ##############                                                                                 ')
     console.log(drawerPrices.init());
@@ -38,6 +62,6 @@ async function run() {
     console.log(`                                                                                 FROM: ${firstDate} || TO: ${lastDate}`);
 }
 
-run().then(() => {
-    console.log('done!..');
-})
+// run().then(() => {
+//     console.log('done!..');
+// })
